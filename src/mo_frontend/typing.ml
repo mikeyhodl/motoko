@@ -63,6 +63,7 @@ type env =
     shared_pat_regions : Source.region list ref;
     reported_stable_memory : bool ref;
     errors_only : bool;
+    type_recovery : bool;
     srcs : Field_sources.t;
     closest_loop : (Syntax.loop_flags * T.typ) option;
   }
@@ -94,6 +95,7 @@ let env_of_scope msgs scope =
     shared_pat_regions = ref [];
     reported_stable_memory = ref false;
     errors_only = false;
+    type_recovery = false;
     srcs = Field_sources.of_immutable_map scope.Scope.fld_src_env;
     closest_loop = None;
   }
@@ -1418,7 +1420,7 @@ let is_lib_module (n, t) =
 let is_val_module (n, ((t, _, _, _) : val_info)) =
   is_lib_module (n, t)
 
-let module_exp in_libs env module_name =
+let module_exp in_libs module_name =
   if not in_libs then
     VarE {it = module_name; at = no_region; note = (Const, None)}
   else
@@ -1456,7 +1458,7 @@ let resolve_hole env at hole_sort typ =
       List.map (fun (lab, typ, region)->
           let path =
             { it = DotE(
-                { it = module_exp in_libs env module_name;
+                { it = module_exp in_libs module_name;
                   at = Source.no_region;
                   note = empty_typ_note
                 },
@@ -1599,7 +1601,7 @@ let contextual_dot env name receiver_ty : (ctx_dot_candidate, 'a context_dot_err
       Option.map (fun (arg_ty, func_ty, inst) ->
         let path = {
           it = DotE({
-              it = module_exp in_libs env module_name;
+              it = module_exp in_libs module_name;
               at = name.at;
               note = empty_typ_note
             }, name, ref None);
@@ -1915,6 +1917,7 @@ and infer_exp'' env exp : T.typ =
     (match try_infer_dot_exp env exp.at exp1 id ("", (fun dot_typ -> true))  with
     | Ok t -> t
     | Error (_, mk_e) ->
+      if env.pre && env.type_recovery then T.Non else
       let e = mk_e() in
       Diag.add_msg env.msgs e;
       raise Recover)
@@ -2728,6 +2731,7 @@ and infer_callee env exp =
     | Error (t1, mk_e) ->
       match contextual_dot env id t1 with
       | Error (DotSuggestions mk_suggestions) ->
+        if env.pre && env.type_recovery then T.Non, None else
         (* TODO: move this logic into mk_suggestions *)
         let suggestions = mk_suggestions env in
         let e = mk_e () in
@@ -4601,7 +4605,7 @@ let infer_prog ?(enable_type_recovery=false) scope pkg_opt async_cap prog
         (fun prog ->
           let env0 = env_of_scope msgs scope in
           let env = {
-             env0 with async = async_cap;
+             env0 with async = async_cap; type_recovery = enable_type_recovery;
           } in
           let t, sscope = infer_block env prog.it prog.at true in
           if pkg_opt = None && Diag.is_error_free msgs then emit_unused_warnings env;
