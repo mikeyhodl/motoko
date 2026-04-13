@@ -1,5 +1,9 @@
 # Motoko compiler changelog
 
+* motoko (`moc`)
+
+  * bugfix: Resolve relative paths in `moc.js` flags (e.g. `--enhanced-migration`, `--actor-idl`) against the source file's directory, fixing "not a directory" errors when these flags are passed with relative paths via the language server (#6002).
+
 ## 1.5.0 (2026-04-10)
 
 * motoko (`moc`)
