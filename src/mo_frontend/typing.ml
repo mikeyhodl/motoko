@@ -3978,21 +3978,7 @@ and check_pat_aux' env t t_orig pat val_kind : Scope.val_env =
       error env pat.at ~spans "M0112" "tuple pattern cannot consume expected type"
     in check_pats env ts pats T.Env.empty pat.at
   | ObjP pfs ->
-    let pfs' = List.stable_sort compare_pat_field pfs in
-    let vpfs = List.filter_map (fun pf ->
-      match pf.it with
-      | TypPF _ -> None
-      | ValPF(id, _) -> Some(id.it)) pfs' in
-    let s, fs =
-      try T.as_obj_sub vpfs t
-      with Invalid_argument _ ->
-        let spans = add_error_ctx [primary env pat.at "expected `%a`, got object type" display_typ_expand_inline t] in
-        error env pat.at "M0113" ~spans "object pattern cannot consume expected type"
-    in
-    if not env.pre && s = T.Actor && vpfs <> [] then
-      local_error env pat.at "M0114" "object pattern cannot consume values from actor type%a"
-        display_typ_expand t;
-    check_pat_fields env t fs pfs' T.Env.empty pat.at
+    check_obj_pat_aux env t pat pfs
   | OptP pat1 ->
     let t1 = try T.as_opt_sub t with Invalid_argument _ ->
       let spans = add_error_ctx [primary env pat.at "expected `%a`, got `?_`" display_typ_expand_inline t] in
@@ -4088,6 +4074,25 @@ and check_pats env ts pats ve at : Scope.val_env =
         pats_len ts_len
   in
   go ts pats ve
+
+(* Common work for an object-pattern check. *)
+and check_obj_pat_aux env t pat pfs : Scope.val_env =
+  let pfs' = List.stable_sort compare_pat_field pfs in
+  let vpfs = List.filter_map (fun pf -> match pf.it with
+    | TypPF _ -> None
+    | ValPF(id, _) -> Some(id.it)) pfs' in
+  let _, fs =
+    try T.as_obj_sub vpfs t
+    with Invalid_argument _ ->
+      let base = [primary env pat.at "expected `%a`, got object type" display_typ_expand_inline t] in
+      let spans = match env.closest_scrutinee with
+        | Some (exp_at, exp_ty) ->
+          secondary env exp_at "this expression has type `%a`" display_typ_expand_inline exp_ty :: base
+        | None -> base
+      in
+      error env pat.at "M0113" ~spans "object pattern cannot consume expected type"
+  in
+  check_pat_fields env t fs pfs' T.Env.empty pat.at
 
 and check_pat_fields env t fs pfs ve at : Scope.val_env =
   let cmp (tf : T.field) (id, _, _) = String.compare tf.T.lab id.it in
