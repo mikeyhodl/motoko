@@ -4,6 +4,7 @@
 
 * motoko (`moc`)
 
+  * bugfix: `--enhanced-migration` now also applies to mixins and considers their stable fields when checking migrations (#6183).
   * feat: allow requiring `system` capability for mixin definitions (#6211).
     This makes the capability available in initializers and the mixin body.  `<system>` then needs to be on the corresponding include. 
   * feat: allow effectful code in transient lets and in actor/mixin bodies with `--enhanced-migration` (#6191).
