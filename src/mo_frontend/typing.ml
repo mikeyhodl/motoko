@@ -73,6 +73,7 @@ type env =
     closest_loop : (Syntax.loop_flags * T.typ) option;
     closest_scrutinee : (region * T.typ) option;
     enhanced_migration : string option;
+    stable_baseline_post : T.field list option;
     (* Inside the args of a call whose own instantiation/implicit is being suggested for removal:
        M0223/M0237 probes drop the donated expected type (it vanishes once applied),
        avoiding suggestions that are unsound when applied together. *)
@@ -111,6 +112,7 @@ let env_of_scope msgs scope =
     closest_loop = None;
     closest_scrutinee = None;
     enhanced_migration = None;
+    stable_baseline_post = None;
     enclosing_removal = false;
   }
 
@@ -4666,16 +4668,34 @@ and check_migration_function env typ at =
 
 and check_enhanced_migration_chain env chain stab_tfs at =
  if chain = [] then () else
+ (* Prefer the actor field span from check_stab; fall back to the actor region. *)
+ let field_at tf =
+   let r = tf.T.src.T.region in
+   if r <> no_region then r else at
+ in
  let check_chain chain post =
    let mfs = List.rev chain in
-   let rec check_mfs at post mfs =
+   let rec check_mfs step_at post mfs =
      match mfs with
      | [] ->
-       (* issue warnings if we infer the initial actor in the chain requires any fields *)
+       (* Same initial_required set: M0254, or M0267 when a baseline is set but does not explain the field. *)
        List.iter (fun tf ->
-         warn env at "M0254"
-           "initial actor requires field `%s` of type%a"
-           tf.T.lab display_typ tf.T.typ)
+         let unexplained =
+           match env.stable_baseline_post with
+           | None -> false
+           | Some baseline ->
+             match T.lookup_val_field_opt tf.T.lab baseline with
+             | Some t when T.stable_sub (T.as_immut t) (T.as_immut tf.T.typ) -> false
+             | _ -> true
+         in
+         if unexplained then
+           local_error env (field_at tf) "M0267"
+             "initial actor requires field `%s` of type%a; not found in the previous version — write a migration that produces it"
+             tf.T.lab display_typ tf.T.typ
+         else
+           warn env step_at "M0254"
+             "initial actor requires field `%s` of type%a"
+             tf.T.lab display_typ tf.T.typ)
          post
      | (file, _, typ)::mfs1 ->
         let file_at = let file_pos = { no_pos with file = file} in {left = file_pos; right=file_pos} in
@@ -4690,7 +4710,7 @@ and check_enhanced_migration_chain env chain stab_tfs at =
           |> List.sort T.compare_field
         in
         Stability.match_stab_fields env.msgs
-          at
+          step_at
           (Some mf.T.lab)
           out
           (List.map (fun tf -> (T.lookup_val_field_opt tf.T.lab rng_mf = None, tf)) post);
@@ -5597,7 +5617,7 @@ let infer_split_prog env at check_unused imports decls =
   t, Scope.adjoin iscope sscope
 
 (* Programs *)
-let infer_prog ?(enable_type_recovery=false) scope pkg_opt async_cap prog
+let infer_prog ?(enable_type_recovery=false) ~stable_baseline_post scope pkg_opt async_cap prog
     : (T.typ * Scope.t) Diag.result
   =
   let recovery_fn = if enable_type_recovery then
@@ -5614,6 +5634,7 @@ let infer_prog ?(enable_type_recovery=false) scope pkg_opt async_cap prog
               async = async_cap;
               type_recovery = enable_type_recovery;
               enhanced_migration = !Flags.enhanced_migration;
+              stable_baseline_post;
             } in
           let imports, decls = split_imports prog.it in
           let t, sscope = infer_split_prog env prog.at true imports decls in
@@ -5661,7 +5682,7 @@ let check_actors ?(check_actors=false) scope progs : unit Diag.result =
         ) progs
     )
 
-let check_lib scope pkg_opt lib : Scope.t Diag.result =
+let check_lib ~stable_baseline_post scope pkg_opt lib : Scope.t Diag.result =
   Diag.with_message_store
     (fun msgs ->
       recover_opt
@@ -5673,9 +5694,10 @@ let check_lib scope pkg_opt lib : Scope.t Diag.result =
               (* For now, only the main actor(class) and mixins support enhanced_migration, not libraries
                  For imported classes, we would need some convention to locate their migration
                  dirs *)
-              enhanced_migration = match cub.it with
-                | MixinU _ -> !Flags.enhanced_migration;
-                | _ -> None;
+              enhanced_migration = (match cub.it with
+                | MixinU _ -> !Flags.enhanced_migration
+                | _ -> None);
+              stable_baseline_post;
             } in
           let (imp_ds, ds) = CompUnit.decs_of_lib lib in
           let typ, _ = infer_split_prog env lib.at false imp_ds ds in
