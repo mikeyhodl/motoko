@@ -5,6 +5,8 @@
   * improvement: RTS weak reference interaction with the incremental GC: weak
     reference reads now go through a load barrier (#6296).
 
+  * bugfix: when decoding a Candid `blob` or `text`, bound the claimed length (#6311).
+
 ## 1.14.0 (2026-08-11)
 
 * motoko (`moc`)
