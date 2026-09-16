@@ -9,6 +9,10 @@
     instead of returning a wrapped value (e.g. `(65536 : Nat32) ** 4` returned
     `0`) (#6340).
 
+  * bugfix: `Region.loadBlob`/`Region.storeBlob` no longer read one block past
+    the end of a region's block table when a block-aligned range ends exactly
+    at the end of the region (#6373).
+
   * perf: the incremental GC's write, allocation and weak-reference read barriers now
     gate on a backend-cached running-GC flag instead of calling into the RTS (#6111).
 
