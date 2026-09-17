@@ -132,11 +132,10 @@ let%expect_test "test1" =
       .<nat> (e.g. '.1')
       !
       <exp_nullary(ob)> (e.g. '42')
-      <binop> <exp(ob)> (e.g. '+ 42')
       ; seplist(<dec_field>,<semicolon>) (e.g. '; public let x : Int = 0')
       |> <exp_bin(ob)> (e.g. '|> 42')
       or <exp_bin(ob)> (e.g. 'or 42')
-      <binop> <exp_nest> (e.g. '+ 42')
+      <binop> <exp(ob)> (e.g. '+ 42')
       <unassign> <exp(ob)> (e.g. '-= 42')
       <relop> <exp_bin(ob)> (e.g. '== 42')
       else <exp_nest> (e.g. 'else 42')
@@ -155,11 +154,10 @@ let%expect_test "test1" =
       .<nat> (e.g. '.1')
       !
       <exp_nullary(ob)> (e.g. '42')
-      <binop> <exp(ob)> (e.g. '+ 42')
       ; seplist(<dec_field>,<semicolon>) (e.g. '; public let x : Int = 0')
       |> <exp_bin(ob)> (e.g. '|> 42')
       or <exp_bin(ob)> (e.g. 'or 42')
-      <binop> <exp_nest> (e.g. '+ 42')
+      <binop> <exp(ob)> (e.g. '+ 42')
       <unassign> <exp(ob)> (e.g. '-= 42')
       <relop> <exp_bin(ob)> (e.g. '== 42')
       else <exp_nest> (e.g. 'else 42')
@@ -171,7 +169,8 @@ let%expect_test "test1" =
       and <exp_bin(ob)> (e.g. 'and 42')
       <unop> <exp_bin(ob)> (e.g. '- 42')
       <inst> <exp_nullary(ob)> (e.g. '<Int> 42')
-      [ <exp(ob)> ] (e.g. '[ 42 ]') |}]
+      [ <exp(ob)> ] (e.g. '[ 42 ]')
+    |}]
 
 let%expect_test "test2" =
   let s = "actor {
@@ -363,11 +362,10 @@ actor Main {
       .<nat> (e.g. '.1')
       !
       <exp_nullary(ob)> (e.g. '42')
-      <binop> <exp(ob)> (e.g. '+ 42')
       ; seplist(<dec_field>,<semicolon>) (e.g. '; public let x : Int = 0')
       |> <exp_bin(ob)> (e.g. '|> 42')
       or <exp_bin(ob)> (e.g. 'or 42')
-      <binop> <exp_nest> (e.g. '+ 42')
+      <binop> <exp(ob)> (e.g. '+ 42')
       <unassign> <exp(ob)> (e.g. '-= 42')
       <relop> <exp_bin(ob)> (e.g. '== 42')
       else <exp_nest> (e.g. 'else 42')
