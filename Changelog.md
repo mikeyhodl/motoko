@@ -4,6 +4,46 @@
 
 * motoko (`moc`)
 
+  * **Important:** classical (legacy, 32-bit) persistence is removed.
+    `moc` now always targets enhanced orthogonal persistence (EOP) with a
+    persistent 64-bit main memory, and 32-bit (`wasm32`) RTS builds no
+    longer exist. The classical-only flags `--legacy-persistence`,
+    `--copying-gc`, `--compacting-gc`, `--generational-gc`,
+    `--rts-stack-pages` and `--skip-gc-deprecation-warning` are removed and
+    now fail with a hard error. `--incremental-gc` and
+    `--enhanced-orthogonal-persistence` remain accepted (they select the
+    only remaining behavior).
+
+  * Existing classical canisters are **not** orphaned: the runtime keeps
+    reading all earlier classical stable-memory formats, and a classical
+    canister migrates to enhanced persistence on its next upgrade. That
+    upgrade must be compiled with the explicit
+    `--enhanced-orthogonal-persistence` flag and must not use
+    `--enhanced-migration`: without the flag the new module traps with
+    "Detected implicit upgrade from classical orthogonal persistence to
+    enhanced orthogonal persistence", and with `--enhanced-migration` it
+    traps with "Cannot upgrade from classical orthogonal persistence with
+    --enhanced-migration". The migration is irreversible; later upgrades
+    need no flag. The graph-copy stabilization machinery that performs it
+    is retained.
+
+  * Because `--legacy-persistence` is gone, `moc` can no longer *produce*
+    classical canisters; projects that still need a classical module must
+    keep an older `moc` (e.g. 1.14.x). The incremental GC is the only GC;
+    the non-incremental classical GCs (copying, compacting, generational)
+    are removed.
+
+  * `--enhanced-migration` no longer requires `--enhanced-orthogonal-persistence`
+    on the command line; the corresponding "flag requires" error is gone
+    because EOP is always in effect.
+
+  * Tests: the classical/32-bit test class and the persistence test markers
+    are removed, and the upgrades exercising the classical→EOP boundary now
+    install committed classical `old.wasm` fixtures built by `moc` 1.14.1
+    (see `test/run-drun/*/note.txt`). The classical-only `upgrade-hooks` and
+    `map-upgrades` tests are dropped; their EOP twins
+    `stabilization-upgrade-hooks` and `map-stabilization` cover the same
+    sequences. (#6362)
   * breaking: Actors are now `persistent` by default: a bare `actor`/`actor class`
     declaration makes its fields implicitly `stable`. The former default, in
     which actor fields were implicitly `transient`, can no longer be restored
@@ -48,6 +88,13 @@
     continue to be produced. Users on Intel Macs should build from source.
     The `motoko-base-library.tar.gz` release artifact is also dropped;
     `motoko-core.tar.gz` is unaffected. (#6355)
+
+* motoko-js (`moc.js`)
+
+  * **Breaking:** `gcFlags` accepts only `"incremental"`, `"enhancedOP"`
+    (both no-ops, describing the only remaining mode), `"force"` and
+    `"scheduling"`; `"copying"`, `"marking"`, `"generational"` and
+    `"classicOP"` now throw `Invalid_argument` (#6362).
 
 ## 1.16.1 (2026-09-16)
 

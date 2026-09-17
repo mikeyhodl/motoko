@@ -1,4 +1,3 @@
-//ENHANCED-ORTHOGONAL-PERSISTENCE-ONLY
 //MOC-FLAG --enhanced-orthogonal-persistence --enhanced-migration enhanced-migration-mixin/migrations
 import Mixin "enhanced-migration-mixin/Mixin";
 
