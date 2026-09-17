@@ -1,6 +1,14 @@
 # Motoko compiler changelog
 
+## Next
+
 * motoko (`moc`)
+
+  * feat: the contextual dot suggestion (`M0236`) is now on by default: `moc`
+    warns about calls like `Map.filter(map, ...)` that could be written with
+    dot notation `map.filter(...)`. Silence with `-A M0236`. The related
+    suggestions `M0223` (redundant type instantiation) and `M0237` (redundant
+    explicit arguments) remain off by default (allow with `-W`). (#6361)
 
   * BREAKING CHANGE: the `motoko-Darwin-x86_64` release tarball and the
     Intel-Mac (`macos-15-intel`) build/release CI legs are dropped; neither
