@@ -190,6 +190,21 @@ let handle_error lexbuf error_detail message_store (start, end_)
       Printf.sprintf
         "unexpected %s: braces `{ ... }` enclose a record literal in this position, not a block; to evaluate a block of statements here, use `do { ... }`"
         token
+    (* only a block can follow: the body of `switch`/`do`, or the branches/body after an unparenthesized (extended) `if`/`while`/`for` head.
+       The acceptable-token guards keep this away from the other `{`-expecting spots —
+       a class body also accepts `=`, an object body a field name, a legacy branch any expression —
+       so it fires only where `{` is the sole continuation *)
+    else if last_token <> Parser.LCURLY && acceptable Parser.LCURLY
+            && not (acceptable (Parser.ID "id")) && not (acceptable Parser.LPAR)
+            && not (acceptable Parser.EQ) then
+      "M0275",
+      Printf.sprintf
+        "unexpected %s, expected a block `{ ... }`: `switch` and `do` always take a block, and so do the branches or body of `if`/`while`/`for` when the condition or head is written without parentheses (parenthesize it to keep bare branches)"
+        token
+    (* a record literal or block where neither is allowed, e.g. written directly as a `switch` or `if` head *)
+    else if last_token = Parser.LCURLY && acceptable Parser.LPAR then
+      "M0272",
+      "a record literal or block is not allowed in this position; wrap a record in parentheses, `({ ... })`, or use `do { ... }` for a block"
     (* a reserved keyword where only an identifier would do; statement- and declaration-starting keywords (`return`, `public`, ...)
        are excluded, as is any position that also accepts `;` — there the keyword most likely starts the next declaration after a
        missing separator (`let x = 1 <newline> public func ...`) *)

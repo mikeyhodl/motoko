@@ -1,4 +1,4 @@
-syntax-coalesce-unspaced.mo:4.11-4.12: syntax error [M0001], unexpected token '?', expected one of token or <phrase> sequence:
+error[M0001]: unexpected token '#', expected one of token or <phrase> sequence:
   <eof>
   .<nat>
   !
@@ -18,3 +18,6 @@ syntax-coalesce-unspaced.mo:4.11-4.12: syntax error [M0001], unexpected token '?
   and <exp_bin(ob)>
   <unop> <exp_bin(ob)>
   <inst> <exp_arg>
+    ┌─ syntax-hash-halfspaced.mo:6:13
+  6 │  let bad = a #b;
+    │              ^ 

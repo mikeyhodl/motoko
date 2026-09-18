@@ -15,7 +15,7 @@ parse-block-or-record.mo:42.19-42.23: syntax error [M0001], unexpected token 'wi
   }
   .<nat>
   !
-  <exp_nullary(ob)>
+  <exp_cont>
   ; seplist(<dec>,<semicolon>)
   |> <exp_bin(ob)>
   or <exp_bin(ob)>
@@ -30,13 +30,12 @@ parse-block-or-record.mo:42.19-42.23: syntax error [M0001], unexpected token 'wi
   <binassign> <exp(ob)>
   and <exp_bin(ob)>
   <unop> <exp_bin(ob)>
-  <inst> <exp_nullary(ob)>
-  [ <exp(ob)> ]
+  <inst> <exp_arg>
 parse-block-or-record.mo:42.26-42.27: syntax error [M0001], unexpected token '=', expected one of token or <phrase> sequence:
   }
   .<nat>
   !
-  <exp_nullary(ob)>
+  <exp_cont>
   ; seplist(<dec>,<semicolon>)
   |> <exp_bin(ob)>
   or <exp_bin(ob)>
@@ -50,13 +49,12 @@ parse-block-or-record.mo:42.26-42.27: syntax error [M0001], unexpected token '='
   <binassign> <exp(ob)>
   and <exp_bin(ob)>
   <unop> <exp_bin(ob)>
-  <inst> <exp_nullary(ob)>
-  [ <exp(ob)> ]
+  <inst> <exp_arg>
 parse-block-or-record.mo:44.16-44.20: syntax error [M0001], unexpected token 'with', expected one of token or <phrase> sequence:
   }
   .<nat>
   !
-  <exp_nullary(ob)>
+  <exp_cont>
   ; seplist(<dec>,<semicolon>)
   |> <exp_bin(ob)>
   or <exp_bin(ob)>
@@ -71,13 +69,12 @@ parse-block-or-record.mo:44.16-44.20: syntax error [M0001], unexpected token 'wi
   <binassign> <exp(ob)>
   and <exp_bin(ob)>
   <unop> <exp_bin(ob)>
-  <inst> <exp_nullary(ob)>
-  [ <exp(ob)> ]
+  <inst> <exp_arg>
 parse-block-or-record.mo:44.23-44.24: syntax error [M0001], unexpected token '=', expected one of token or <phrase> sequence:
   }
   .<nat>
   !
-  <exp_nullary(ob)>
+  <exp_cont>
   ; seplist(<dec>,<semicolon>)
   |> <exp_bin(ob)>
   or <exp_bin(ob)>
@@ -91,8 +88,7 @@ parse-block-or-record.mo:44.23-44.24: syntax error [M0001], unexpected token '='
   <binassign> <exp(ob)>
   and <exp_bin(ob)>
   <unop> <exp_bin(ob)>
-  <inst> <exp_nullary(ob)>
-  [ <exp(ob)> ]
+  <inst> <exp_arg>
 parse-block-or-record.mo:50.24-50.29: syntax error [M0272], `x = e` is a record field, but this position holds declarations, not a record literal; to declare a variable or field, use `let` (or `var`); to assign, use `:=`; to produce a record from a block, nest it as the block's result: `{ { x = 0 } }`
 parse-block-or-record.mo:50.31-50.36: syntax error [M0272], `x = e` is a record field, but this position holds declarations, not a record literal; to declare a variable or field, use `let` (or `var`); to assign, use `:=`; to produce a record from a block, nest it as the block's result: `{ { x = 0 } }`
 parse-block-or-record.mo:50.38-50.43: syntax error [M0272], `x = e` is a record field, but this position holds declarations, not a record literal; to declare a variable or field, use `let` (or `var`); to assign, use `:=`; to produce a record from a block, nest it as the block's result: `{ { x = 0 } }`
