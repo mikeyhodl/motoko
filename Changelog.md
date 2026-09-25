@@ -4,6 +4,10 @@
 
 * motoko (`moc`)
 
+  * feat: `do { ... }` and `do ? { ... }` work as operator operands:
+    `1 + do { 2 }`, `do { 1 } + 2`, `-do { ... }`, `debug_show do { ... }`.
+    A postfix form needs parentheses around the block, `(do { ... }).field` (#6395).
+
   * feat: unparenthesized `case` patterns combine with `or`, `and` and `: T`:
     `case #less or #equal { ... }`, `case x : Nat { ... }`. `catch` accepts
     the same patterns, e.g. `catch e : Error { ... }`. A variant payload always

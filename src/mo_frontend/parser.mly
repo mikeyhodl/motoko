@@ -816,8 +816,13 @@ exp_un(B, R) :
   | e=exp_un_ext(B, R)
     { e }
 
-(* The prefix forms (variant, `?`, unary and `not`, parenthetical notes, Candid conversions), shared with exp_head_un *)
+(* The prefix forms (variant, `?`, unary and `not`, parenthetical notes, Candid conversions, `do`), shared with exp_head_un.
+   `do { }` is an operand at this level, so no postfix form follows it: `do { r }.a` reads as if `.a` were inside the block. *)
 %inline exp_un_ext(B, R) :
+  | DO e=block
+    { e.it @? at $sloc }
+  | DO QUEST e=block
+    { DoOptE(e) @? at $sloc }
   | par=parenthetical e=exp_post(B, R)
      { match e.it with
        | CallE (None, e1, inst, args) ->
@@ -971,10 +976,6 @@ exp_un(B, R) :
     { ForE(p, e1, e2, new_loop_flags ()) @? at $sloc }
   | IGNORE e=legacy_operand(R)
     { IgnoreE(e) @? at $sloc }
-  | DO e=block
-    { e.it @? at $sloc }
-  | DO QUEST e=block
-    { DoOptE(e) @? at $sloc }
 
 exp_nonvar(B, R) :
   | e=exp_nondec(B, R)
@@ -1092,10 +1093,6 @@ exp_head :
     { AwaitE(Type.AwaitFut true, e) @? at $sloc }
   | AWAITSTAR e=legacy_operand(bl)
     { AwaitE(Type.AwaitCmp, e) @? at $sloc }
-  | DO e=block
-    { e.it @? at $sloc }
-  | DO QUEST e=block
-    { DoOptE(e) @? at $sloc }
 
 exp_field :
   | m=var_opt x=id t=annot_opt

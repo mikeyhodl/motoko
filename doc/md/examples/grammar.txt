@@ -222,6 +222,8 @@
     <exp_un_ext>
 
 <exp_un_ext> ::= 
+    'do' <block>
+    'do' '?' <block>
     <parenthetical> <exp_post>
     '#' <id>
     '#' <id> <exp_nullary>
@@ -278,8 +280,6 @@
     'for' '(' <pat> 'in' <exp> ')' <exp_nest>
     'for' <pat> 'in' <head> <block>
     'ignore' <exp_nest>
-    'do' <block>
-    'do' '?' <block>
 
 <exp_nonvar> ::= 
     <exp_nondec>
@@ -342,8 +342,6 @@
     'await' <exp_nest>
     'await?' <exp_nest>
     'await*' <exp_nest>
-    'do' <block>
-    'do' '?' <block>
 
 <exp_field> ::= 
     'var'? <id> (':' <typ>)?
