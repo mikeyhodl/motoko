@@ -4,6 +4,11 @@
 
 * motoko (`moc`)
 
+  * chore!: `-g` emits just the DWARF line table, `.debug_line` and
+    `.debug_line_str`. The `.debug_abbrev`, `.debug_addr` and
+    `.debug_rnglists` sections are gone: they only served a `.debug_info`
+    section that `moc` never emitted (#6406).
+
   * fix: contextual dot resolves functions returning `async` when used in an
     async context, e.g. `await x.asyncFunc()` (#6085).
 
