@@ -4,6 +4,25 @@
 
 * motoko (`moc`)
 
+  * feat!: an imported library that is a bare sequence of declarations, rather
+    than `module { ... }` or a named actor class, is now rejected with error
+    `M0142` instead of a deprecation warning. Wrap its declarations in
+    `module { ... }` and mark the exported ones `public`. `-A`, `-W` and `-E`
+    no longer accept `M0142` (#6407).
+
+  * feat!: the `flexible` keyword, an alias of `transient`, is removed. Write
+    `transient` instead; `flexible` is now an ordinary identifier (#6407).
+
+  * feat!: an actor class whose declared return type is not `async T`, as in
+    `actor class C() : actor {} { ... }`, is now rejected with error `M0193`
+    instead of warning `M0135`. Write `: async actor {}`. `-A`, `-W` and `-E`
+    no longer accept `M0135` (#6407).
+
+  * chore!: `-g` emits just the DWARF line table, `.debug_line` and
+    `.debug_line_str`. The `.debug_abbrev`, `.debug_addr` and
+    `.debug_rnglists` sections are gone: they only served a `.debug_info`
+    section that `moc` never emitted (#6406).
+
   * fix: contextual dot resolves functions returning `async` when used in an
     async context, e.g. `await x.asyncFunc()` (#6085).
 
