@@ -16,6 +16,7 @@ M0190 (W) Types inconsistent for alternative pattern variables, losing informati
 M0191 (W) Code requires Wasm features ... to execute
 M0194 (E) Unused identifier warning
 M0195 (W) warn that `system` capability is implicitly supplied
+M0196 (W) The `system` capability is not required by this function
 M0198 (W) Unused field pattern warning
 M0206 (W) Migration consumes, but does not produce, a declared field
 M0207 (W) Migration consumes, but does not produce, an un-declared field
