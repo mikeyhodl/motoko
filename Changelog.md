@@ -4,6 +4,19 @@
 
 * motoko (`moc`)
 
+  * feat!: Diagnostics that flag code which traps or silently does not do what
+    it says are now errors by default: non-exhaustive patterns in `switch`,
+    `let`, `catch`, `for` and function parameters (M0145), `ignore` of an
+    `async*` value (M0222), misplaced parentheticals (M0210), unrecognised
+    parenthetical attributes such as `(with cycle = ...)` (M0212), record or
+    object fields that the expected type drops, such as the typo in
+    `{ user with emial = e }` (M0215), functions named like system methods
+    but declared without `system` (M0128), implicit oneway `public func`s
+    (M0242), and import paths whose letter case differs from the file name
+    (M0005). Use `let ... else`, a `case _` branch, or an explicit `: ()` /
+    `: async ()` annotation to fix them, or pass `-W <code>` to downgrade a
+    code to a warning again (#6410).
+
   * feat!: an imported library that is a bare sequence of declarations, rather
     than `module { ... }` or a named actor class, is now rejected with error
     `M0142` instead of a deprecation warning. Wrap its declarations in
